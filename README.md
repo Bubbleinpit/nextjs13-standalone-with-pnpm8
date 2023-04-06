@@ -1,38 +1,48 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+This repo is for reproducing the issue that nextjs misses dependencies in standalone output mode when using pnpm 8 and using appDir.
 
-First, run the development server:
+## Reproduce the issue
+
+Execute these commands:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+# execute `next build` and copy all necessary files to output dir
+sh ./build.sh
+
+# move output dir to another place and execute `node server.js` in it
+sh ./test-standalone-output.sh
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+You will see:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+node:internal/modules/cjs/loader:1024
+  throw err;
+  ^
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Error: Cannot find module 'styled-jsx'
+Require stack:
+- /Users/username/build/node_modules/next/dist/build/webpack/require-hook.js
+- /Users/username/build/node_modules/next/dist/server/initialize-require-hook.js
+- /Users/username/build/node_modules/next/dist/server/next-server.js
+- /Users/username/build/server.js
+    at Function.Module._resolveFilename (node:internal/modules/cjs/loader:1021:15)
+    at Function.resolve (node:internal/modules/cjs/helpers:114:19)
+    at Object.loadRequireHook (/Users/username/build/node_modules/next/dist/build/webpack/require-hook.js:38:21)
+    at Object.<anonymous> (/Users/username/build/node_modules/next/dist/server/initialize-require-hook.js:3:19)
+    at Module._compile (node:internal/modules/cjs/loader:1191:14)
+    at Object.Module._extensions..js (node:internal/modules/cjs/loader:1245:10)
+    at Module.load (node:internal/modules/cjs/loader:1069:32)
+    at Function.Module._load (node:internal/modules/cjs/loader:904:12)
+    at Module.require (node:internal/modules/cjs/loader:1093:19)
+    at require (node:internal/modules/cjs/helpers:108:18) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/username/build/node_modules/next/dist/build/webpack/require-hook.js',
+    '/Users/username/build/node_modules/next/dist/server/initialize-require-hook.js',
+    '/Users/username/build/node_modules/next/dist/server/next-server.js',
+    '/Users/username/build/server.js'
+  ]
+}
+```
